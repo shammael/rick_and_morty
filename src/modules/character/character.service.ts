@@ -18,4 +18,16 @@ export class CharacterService {
     });
     return character;
   }
+
+  async delete(id: string) {
+    const character = await this.prismaService.character.update({
+      where: {
+        id,
+      },
+      data: {
+        state: 'INACTIVE',
+      },
+    });
+    return character;
+  }
 }

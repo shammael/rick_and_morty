@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
 import { CharacterService } from './character.service';
 import { CreateCharacterRequestDto } from './dtos';
 
@@ -8,5 +8,10 @@ export class CharacterController {
   @Post()
   create(@Body() input: CreateCharacterRequestDto) {
     return this.characterService.create(input);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.characterService.delete(id);
   }
 }
