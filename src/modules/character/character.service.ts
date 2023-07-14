@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCharacterRequestDto } from './dtos';
+import { CreateCharacterRequestDto, UpdateCharacterRequestDto } from './dtos';
 
 @Injectable()
 export class CharacterService {
@@ -26,6 +26,18 @@ export class CharacterService {
       },
       data: {
         state: 'INACTIVE',
+      },
+    });
+    return character;
+  }
+
+  async update(id: string, request: UpdateCharacterRequestDto) {
+    const character = await this.prismaService.character.update({
+      where: {
+        id,
+      },
+      data: {
+        ...request,
       },
     });
     return character;
