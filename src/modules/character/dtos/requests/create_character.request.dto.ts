@@ -1,9 +1,4 @@
-import {
-  CharacterGender,
-  CharacterState,
-  CharacterStatus,
-  Specy,
-} from '@prisma/client';
+import { CharacterGender, CharacterStatus, Specy } from '@prisma/client';
 import { IsString, IsEnum, IsArray } from 'class-validator';
 
 export class CreateCharacterRequestDto {
