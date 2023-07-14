@@ -1,0 +1,48 @@
+version: '3.9'
+services:
+  backend:
+    container_name: money-backend
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+      - '9230:9229' ## debug
+    volumes:
+      - .:/home/app
+      - /home/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://shammael:test12345@money-db-dev:27017/money?authSource=admin
+    depends_on:
+      - database
+  database:
+    container_name: money-db-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: shammael
+      MONGO_INITDB_ROOT_PASSWORD: test12345
+      MONGO_INITDB_DATABASE: money
+      MONGO_REPLICA_HOST: money-db-dev
+      MONGO_REPLICA_PORT: '27017'
+    volumes:
+      - database-data:/data/db
+  dababase-ui:
+    container_name: database-ui
+    restart: always
+    image: mongo-express
+    depends_on:
+      - database
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=shammael
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=test12345
+      - ME_CONFIG_MONGODB_SERVER=money-db-dev
+    ports:
+      - 8081:8081
+volumes:
+  database-data:
