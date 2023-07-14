@@ -9,3 +9,47 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model Character {
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId()
+  name       String
+  status     CharacterStatus
+  specy      Specy
+  gender     CharacterGender
+  image      String
+  created    DateTime?       @default(now())
+  episodeIDs String[]        @unique() @db.ObjectId()
+  episodes   Episode[]       @relation(fields: [episodeIDs], references: [id])
+  state      CharacterState? @default(ACTIVE)
+}
+
+enum CharacterState {
+  ACTIVE   @map("active")
+  INACTIVE @map("inactive")
+}
+
+enum Specy {
+  ALIEN @map("Alien")
+  HUMAN @map("Human")
+}
+
+enum CharacterGender {
+  FEMALE @map("Female")
+  MALE   @map("Male")
+}
+
+enum CharacterStatus {
+  ALIVE   @map("Alive")
+  DEAD    @map("Dead")
+  UNKNOWN @map("unknown")
+}
+
+model Episode {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId()
+  name         String
+  url          String
+  code         String
+  created      String
+  charactersID String[]    @unique() @db.ObjectId()
+  characters   Character[] @relation(fields: [charactersID], references: [id])
+}
