@@ -1,5 +1,5 @@
 import { CharacterGender, CharacterStatus, Specy } from '@prisma/client';
-import { IsString, IsEnum, IsArray } from 'class-validator';
+import { IsString, IsEnum } from 'class-validator';
 
 export class CreateCharacterRequestDto {
   @IsString()
@@ -14,6 +14,4 @@ export class CreateCharacterRequestDto {
   image: string;
   @IsString()
   created: string;
-  @IsArray()
-  episodeIDs: string[];
 }
