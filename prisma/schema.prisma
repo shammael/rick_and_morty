@@ -21,6 +21,8 @@ model Character {
   episodeIDs String[]        @unique() @db.ObjectId()
   episodes   Episode[]       @relation(fields: [episodeIDs], references: [id])
   state      CharacterState? @default(ACTIVE)
+
+  @@unique([name, specy])
 }
 
 enum CharacterState {
