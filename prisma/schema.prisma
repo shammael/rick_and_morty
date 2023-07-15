@@ -50,6 +50,6 @@ model Episode {
   url          String
   code         String
   created      String
-  charactersID String[]    @unique() @db.ObjectId()
-  characters   Character[] @relation(fields: [charactersID], references: [id])
+  characterIDs String[]    @unique() @db.ObjectId()
+  characters   Character[] @relation(fields: [characterIDs], references: [id])
 }
