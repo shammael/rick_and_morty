@@ -4,6 +4,7 @@ COPY package.json .
 RUN yarn install
 COPY . .
 RUN yarn run database:generate
+RUN npx prisma db push
 ENV PORT 3000
 EXPOSE $PORT
 CMD ["yarn", "start:dev"]
