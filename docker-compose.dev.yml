@@ -1,21 +1,22 @@
 version: '3.9'
 services:
-  backend:
-    container_name: api_backend
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - '3000:3000'
-      - '9230:9229' ## debug
-    volumes:
-      - .:/home/app
-      - /home/app/node_modules
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=mongodb://shammael:test12345@api_database:27017/database_api?authSource=admin
-    depends_on:
-      - database
+  # backend:
+  #   container_name: api_backend
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - '3000:3000'
+  #     - '9230:9229' ## debug
+  #   volumes:
+  #     - .:/home/app
+  #     - /home/app/node_modules
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=mongodb://shammael:test12345@api_database:27017/database_api?authSource=admin
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
   database:
     container_name: api_database
     build:
@@ -28,10 +29,20 @@ services:
       MONGO_INITDB_ROOT_USERNAME: shammael
       MONGO_INITDB_ROOT_PASSWORD: test12345
       MONGO_INITDB_DATABASE: database_api
-      MONGO_REPLICA_HOST: api_database
+      MONGO_REPLICA_HOST: localhost
       MONGO_REPLICA_PORT: 27017
     volumes:
       - database-data:/data/db
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'mongo --eval "quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)"',
+        ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
   dababase-ui:
     container_name: database-ui
     restart: always
@@ -41,7 +52,7 @@ services:
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=shammael
       - ME_CONFIG_MONGODB_ADMINPASSWORD=test12345
-      - ME_CONFIG_MONGODB_SERVER=api_database
+      - ME_CONFIG_MONGODB_SERVER=localhost
     ports:
       - 8081:8081
 volumes:

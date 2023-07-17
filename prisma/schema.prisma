@@ -11,18 +11,15 @@ datasource db {
 }
 
 model Character {
-  id         String          @id @default(auto()) @map("_id") @db.ObjectId()
-  name       String
-  status     CharacterStatus
-  specy      Specy
-  gender     CharacterGender
-  image      String
-  created    DateTime?       @default(now())
-  episodeIDs String[]        @unique() @db.ObjectId()
-  episodes   Episode[]       @relation(fields: [episodeIDs], references: [id])
-  state      CharacterState? @default(ACTIVE)
-
-  @@unique([name, specy])
+  id      String          @id @default(auto()) @map("_id") @db.ObjectId()
+  name    String
+  status  CharacterStatus
+  specy   Specy
+  gender  CharacterGender
+  image   String
+  created DateTime?       @default(now())
+  state   CharacterState? @default(ACTIVE)
+  episode Episode?
 }
 
 enum CharacterState {
@@ -47,11 +44,11 @@ enum CharacterStatus {
 }
 
 model Episode {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId()
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId()
   name         String
   url          String
   code         String
-  created      DateTime?   @default(now())
-  characterIDs String[]    @unique() @db.ObjectId()
-  characters   Character[] @relation(fields: [characterIDs], references: [id])
+  created      DateTime? @default(now())
+  characterIDs String[]  @unique() @db.ObjectId()
+  characters   Character @relation(fields: [characterIDs], references: [id])
 }
