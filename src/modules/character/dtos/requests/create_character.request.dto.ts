@@ -1,5 +1,5 @@
 import { CharacterGender, CharacterStatus, Specy } from '@prisma/client';
-import { IsString, IsEnum } from 'class-validator';
+import { IsString, IsEnum, IsUrl } from 'class-validator';
 
 export class CreateCharacterRequestDto {
   @IsString()
@@ -11,7 +11,6 @@ export class CreateCharacterRequestDto {
   @IsEnum(CharacterGender)
   gender: CharacterGender;
   @IsString()
+  @IsUrl()
   image: string;
-  @IsString()
-  created: string;
 }
