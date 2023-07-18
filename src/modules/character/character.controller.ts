@@ -11,23 +11,32 @@ import {
 import { CharacterState, CharacterStatus, Specy } from '@prisma/client';
 
 import { CharacterService, Filter } from './character.service';
-import { CreateCharacterRequestDto, UpdateCharacterRequestDto } from './dtos';
+import {
+  CharacterResponseDto,
+  CharactersResponseDto,
+  CreateCharacterRequestDto,
+  UpdateCharacterRequestDto,
+} from './dtos';
 import { GetAllParamsDtos } from './dtos/requests/get_all.request.dto';
+import { Serialize } from './interceptors';
 
 @Controller('character')
 export class CharacterController {
   constructor(private readonly characterService: CharacterService) {}
   @Post()
+  @Serialize(CharacterResponseDto)
   create(@Body() input: CreateCharacterRequestDto) {
     return this.characterService.create(input);
   }
 
   @Delete(':id')
+  @Serialize(CharacterResponseDto)
   delete(@Param('id') id: string) {
     return this.characterService.delete(id);
   }
 
   @Patch(':id')
+  @Serialize(CharacterResponseDto)
   update(@Param('id') id: string, @Body() request: UpdateCharacterRequestDto) {
     return this.characterService.update(id, request);
   }
@@ -38,7 +47,8 @@ export class CharacterController {
   }
 
   @Get()
-  getAll(@Query() input: GetAllParamsDtos) {
+  @Serialize(CharactersResponseDto)
+  async getAll(@Query() input: GetAllParamsDtos) {
     let filter: Filter;
 
     switch (input.filter_type) {
@@ -56,14 +66,17 @@ export class CharacterController {
         break;
     }
 
-    return this.characterService.getAll({
-      ...filter,
-      limit: parseInt(input.limit),
-      page: parseInt(input.page),
-    });
+    return {
+      characters: await this.characterService.getAll({
+        ...filter,
+        limit: parseInt(input.limit),
+        page: parseInt(input.page),
+      }),
+    };
   }
 
   @Get(':id')
+  @Serialize(CharacterResponseDto)
   getOne(@Param('id') input: string) {
     return this.characterService.getOne(input);
   }
