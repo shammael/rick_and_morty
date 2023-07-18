@@ -64,7 +64,7 @@ export class CharacterController {
   }
 
   @Get(':id')
-  getOne(@Query('query') input: string) {
+  getOne(@Param('id') input: string) {
     return this.characterService.getOne(input);
   }
 }

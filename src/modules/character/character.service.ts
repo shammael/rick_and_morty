@@ -187,6 +187,10 @@ export class CharacterService {
         },
       });
 
+      if (!character) {
+        throw new NotFoundException();
+      }
+
       return character;
     } catch (error) {
       if (error.code === 'P2023') {
@@ -196,6 +200,16 @@ export class CharacterService {
       if (error.code === 'P2025') {
         throw new BadRequestException(`${id} not found`);
       }
+
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException({
+          error: {
+            message: 'Entry not found',
+            code: HttpStatus.NOT_FOUND,
+          },
+        });
+      }
+
       throw new InternalServerErrorException();
     }
   }
