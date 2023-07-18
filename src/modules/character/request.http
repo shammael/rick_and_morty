@@ -1,0 +1,32 @@
+### create character
+
+POST http://localhost:3000/character
+Content-Type: application/json
+
+{
+  "name": "Richk",
+  "status": "ALIVE",
+  "specy": "HUMAN",
+  "gender": "MALE",
+  "image": "http://test.com"
+}
+
+### Delete Character
+DELETE http://localhost:3000/character/5349b4ddd2781d08c09890f3
+Content-Type: application/json
+
+### Edit a character
+PATCH http://localhost:3000/character/64b54281f50a5381e57c480d
+Content-Type: application/json
+
+{
+  "name": "Rickwe"
+}
+
+### Get All
+GET  http://localhost:3000/character?filter_type=status&limit=2&page=2&filter_value=ALIVE
+Content-Type: application/json
+
+### Get one
+GET  http://localhost:3000/character/64b5456af50a5381e57c4810
+Content-Type: application/json
