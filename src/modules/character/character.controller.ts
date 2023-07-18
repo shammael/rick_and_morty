@@ -62,4 +62,9 @@ export class CharacterController {
       page: parseInt(input.page),
     });
   }
+
+  @Get(':id')
+  getOne(@Query('query') input: string) {
+    return this.characterService.getOne(input);
+  }
 }

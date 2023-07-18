@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   CharacterGender,
@@ -176,5 +177,26 @@ export class CharacterService {
         break;
     }
     return characters;
+  }
+
+  async getOne(id: string) {
+    try {
+      const character = await this.prismaService.character.findFirst({
+        where: {
+          id,
+        },
+      });
+
+      return character;
+    } catch (error) {
+      if (error.code === 'P2023') {
+        throw new BadRequestException('Invalid ID');
+      }
+
+      if (error.code === 'P2025') {
+        throw new BadRequestException(`${id} not found`);
+      }
+      throw new InternalServerErrorException();
+    }
   }
 }
