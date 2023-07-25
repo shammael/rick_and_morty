@@ -4,7 +4,7 @@ POST http://localhost:3000/character
 Content-Type: application/json
 
 {
-  "name": "Richk",
+  "name": "Ali",
   "status": "ALIVE",
   "specy": "HUMAN",
   "gender": "MALE",
@@ -12,21 +12,53 @@ Content-Type: application/json
 }
 
 ### Delete Character
-DELETE http://localhost:3000/character/5349b4ddd2781d08c09890f3
+DELETE http://localhost:3000/character/64bd3511518b85c7b15bb196
 Content-Type: application/json
 
 ### Edit a character
-PATCH http://localhost:3000/character/64b54281f50a5381e57c480d
+PATCH http://localhost:3000/character/64b6d0f7128a100ef7d6b005
 Content-Type: application/json
 
 {
-  "name": "Rickwe"
+  "gender": "FEMALE"
 }
 
-### Get All
-GET  http://localhost:3000/character?filter_type=status&limit=2&page=2&filter_value=ALIVE
+### Get All Specy
+GET  http://localhost:3000/character?limit=2&page=2&filter_type=specy&filter_value=ALIEN
+Content-Type: application/json
+
+### Get All State
+GET  http://localhost:3000/character?limit=3&page=1&filter_type=status&filter_value=ESFFD
+Content-Type: application/json
+
+### Get all
+GET  http://localhost:3000/character?limit=2&page=1
 Content-Type: application/json
 
 ### Get one
-GET  http://localhost:3000/character/64b5456af50a5381e57c4810
+GET  http://localhost:3000/character/64b6c7ce11f23abfe9ae454d
 Content-Type: application/json
+
+
+### Asign Episode
+PATCH http://localhost:3000/character/assign/64bd3511518b85c7b15bb196
+Content-Type: application/json
+
+{
+  "episodes_data": [
+    {
+      "code": "10145",
+      "locations": [
+        { "from": "2023-07-18T09:00:00.000Z", "to": "2023-07-18T09:01:00.000Z" },
+        { "from": "2023-07-18T09:01:00.000Z", "to": "2023-07-18T09:02:00.000Z" }
+      ]
+    },
+     {
+      "code": "10146",
+      "locations": [
+        { "from": "2023-07-18T09:00:00.000Z", "to": "2023-07-18T09:01:00.000Z" },
+        { "from": "2023-07-18T09:01:00.000Z", "to": "2023-07-18T09:02:00.000Z" }
+      ]
+    }
+  ]
+}

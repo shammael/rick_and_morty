@@ -1,0 +1,32 @@
+POST http://localhost:3000/episode
+Content-Type: application/json
+
+{
+  "name":"black windowd",
+  "url": "http://hdsdfsdfgdfcf.com",
+  "code": "10146"
+}
+
+### Suspend
+PATCH http://localhost:3000/episode/fgfdgfdgfd
+Content-Type: application/json
+
+### Get all
+GET  http://localhost:3000/episode?filter_type=name&limit=2&page=2&filter_value=bla
+Content-Type: application/json
+
+### Get one
+GET http://localhost:3000/episode/fgfdgfdgfd
+Content-Type: application/json
+
+### Delete One
+DELETE http://localhost:3000/episode/fgfdgfdgfd
+Content-Type: application/json
+
+### Delete Character Episode
+DELETE http://localhost:3000/episode/character_episode/fgfdgfdgfd
+Content-Type: application/json
+
+### Get all episode from expected user
+GET http://localhost:3000/episode
+Content-Type: application/json

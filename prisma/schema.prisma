@@ -11,44 +11,61 @@ datasource db {
 }
 
 model Character {
-  id      String          @id @default(auto()) @map("_id") @db.ObjectId()
-  name    String
-  status  CharacterStatus
-  specy   Specy
-  gender  CharacterGender
-  image   String
-  created DateTime?       @default(now())
-  state   CharacterState? @default(ACTIVE)
-  episode Episode?
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId()
+  name             String
+  status           CharacterStatus
+  specy            Specy
+  gender           CharacterGender
+  image            String
+  created          DateTime?          @default(now())
+  state            CharacterState?    @default(ACTIVE)
+  characterEpisode CharacterEpisode[]
+
+  @@unique([name, specy])
 }
 
 enum CharacterState {
-  ACTIVE   @map("active")
-  INACTIVE @map("inactive")
+  ACTIVE
+  INACTIVE
 }
 
 enum Specy {
-  ALIEN @map("Alien")
-  HUMAN @map("Human")
+  ALIEN
+  HUMAN
 }
 
 enum CharacterGender {
-  FEMALE @map("Female")
-  MALE   @map("Male")
+  FEMALE
+  MALE
 }
 
 enum CharacterStatus {
-  ALIVE   @map("Alive")
-  DEAD    @map("Dead")
-  UNKNOWN @map("unknown")
+  ALIVE
+  DEAD
+  UNKNOWN
 }
 
 model Episode {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId()
-  name         String
-  url          String
-  code         String
-  created      DateTime? @default(now())
-  characterIDs String[]  @unique() @db.ObjectId()
-  characters   Character @relation(fields: [characterIDs], references: [id])
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId()
+  name       String             @unique()
+  url        String             @unique()
+  code       String             @unique()
+  created    DateTime?          @default(now())
+  state      EpisodeState?      @default(AVAILABLE)
+  characters CharacterEpisode[]
+}
+
+enum EpisodeState {
+  AVAILABLE
+  SUSPENDED
+}
+
+model CharacterEpisode {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId()
+  characterID String    @db.ObjectId()
+  character   Character @relation(fields: [characterID], references: [id])
+  from_time   DateTime
+  to_time     DateTime
+  episodeID   String    @db.ObjectId
+  episode     Episode   @relation(fields: [episodeID], references: [id])
 }

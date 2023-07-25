@@ -4,7 +4,11 @@ import { IsEnum, IsNumber, IsOptional, IsPositive } from 'class-validator';
 import { DynamicFilterValue } from '../../decorators';
 
 export class GetAllParamsDtos {
-  @IsEnum(['specy', 'state', 'status'])
+  @IsEnum(['specy', 'state', 'status'], {
+    message(validationArguments) {
+      return `${validationArguments.value} is not in [ ${validationArguments.constraints}]`;
+    },
+  })
   @IsOptional()
   filter_type: 'specy' | 'status' | 'state';
   @IsPositive()

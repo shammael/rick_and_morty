@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { CharacterModule } from './modules/character/character.module';
 import { EpisodeModule } from './modules/episode/episode.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
+import { PrismaService } from './modules/prisma/prisma.service';
 
 @Module({
   imports: [

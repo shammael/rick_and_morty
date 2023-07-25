@@ -13,10 +13,10 @@ import { CharacterState, CharacterStatus, Specy } from '@prisma/client';
 import { CharacterService, Filter } from './character.service';
 import {
   CharacterResponseDto,
-  CharactersResponseDto,
   CreateCharacterRequestDto,
   UpdateCharacterRequestDto,
 } from './dtos';
+import { AsignEpisodesRequestDto } from './dtos/requests/asign_episode.request.dto';
 import { GetAllParamsDtos } from './dtos/requests/get_all.request.dto';
 import { Serialize } from './interceptors';
 
@@ -42,12 +42,16 @@ export class CharacterController {
   }
 
   @Patch('assign/:id')
-  asignEpisode(@Param('id') id: string, @Body() input: string[]) {
+  // @UseGuards(AssignEpisodeGuard)
+  asignEpisode(
+    @Param('id') id: string,
+    @Body() input: AsignEpisodesRequestDto,
+  ) {
     return this.characterService.asignEpisodes(id, input);
   }
 
   @Get()
-  @Serialize(CharactersResponseDto)
+  // @Serialize(CharactersResponseDto)
   async getAll(@Query() input: GetAllParamsDtos) {
     let filter: Filter;
 
@@ -66,12 +70,14 @@ export class CharacterController {
         break;
     }
 
+    const characters = await this.characterService.getAll({
+      ...filter,
+      limit: parseInt(input.limit),
+      page: parseInt(input.page),
+    });
+
     return {
-      characters: await this.characterService.getAll({
-        ...filter,
-        limit: parseInt(input.limit),
-        page: parseInt(input.page),
-      }),
+      characters,
     };
   }
 

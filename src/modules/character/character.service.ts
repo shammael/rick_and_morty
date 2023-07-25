@@ -6,15 +6,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CharacterGender,
-  CharacterState,
-  CharacterStatus,
-  Specy,
-} from '@prisma/client';
-import { GetResult } from '@prisma/client/runtime/library';
+import { CharacterState, CharacterStatus, Specy } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCharacterRequestDto, UpdateCharacterRequestDto } from './dtos';
+import { AsignEpisodesRequestDto } from './dtos/requests/asign_episode.request.dto';
+import { Location } from './interface/episode_data';
 
 export type Filter =
   | { type: 'specy'; value: Specy }
@@ -37,7 +33,6 @@ export class CharacterService {
       });
       return character;
     } catch (error) {
-      console.log({ error: error.message });
       if (error.code === 'P2002') {
         if (error.meta.target === 'Character_name_specy_key') {
           throw new ConflictException({
@@ -106,90 +101,136 @@ export class CharacterService {
     }
   }
 
-  async asignEpisodes(id: string, episodes_code: string[]) {
-    const res = await Promise.all(
-      episodes_code.map((episode) =>
-        this.prismaService.episode.update({
-          where: {
-            id: episode,
-          },
-          data: {
-            characterIDs: {
-              push: id,
+  async asignEpisodes(id: string, request: AsignEpisodesRequestDto) {
+    try {
+      await this.prismaService.$transaction(async (prisma) => {
+        for (const episode of request.episodes_data) {
+          const episodeDB = await prisma.episode.findFirst({
+            where: {
+              code: episode.code,
+            },
+          });
+
+          if (!episodeDB) {
+            throw new NotFoundException({
+              error: {
+                message: `The episode code ${episode.code} not available to perfom this operation`,
+                code: HttpStatus.NOT_FOUND,
+              },
+            });
+          }
+
+          const episodeCharacters = episode.locations.map((location) => ({
+            from_time: new Date(location.from),
+            to_time: new Date(location.to),
+            characterID: id,
+            episodeID: episodeDB.id,
+          }));
+
+          await this.overlapChecking(episode.code, episodeCharacters);
+
+          await prisma.characterEpisode.createMany({
+            data: episodeCharacters,
+          });
+        }
+      });
+
+      return true;
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.getResponse());
+      }
+
+      if (error instanceof BadRequestException) {
+        throw new NotFoundException(error.getResponse());
+      }
+
+      throw new InternalServerErrorException();
+    }
+  }
+
+  private async overlapChecking(episodeCode: string, locations: Location[]) {
+    const overlap_check = await this.prismaService.characterEpisode.findMany({
+      where: {
+        episode: {
+          code: episodeCode,
+          characters: {
+            some: {
+              OR: locations.map((character) => ({
+                from_time: {
+                  lt: character.from_time,
+                },
+                to_time: {
+                  lt: character.to_time,
+                },
+              })),
             },
           },
-        }),
-      ),
-    );
-    console.log({ res });
+        },
+      },
+    });
 
-    return true;
+    console.log({ overlap_check });
+
+    if (overlap_check.length > 0) {
+      throw new BadRequestException({
+        error: {
+          message: `The episode ${episodeCode} has overlap`,
+          code: HttpStatus.BAD_REQUEST,
+        },
+      });
+    }
   }
 
   async getAll(input: Filter & { page: number; limit: number }) {
-    let characters: GetResult<
-      {
-        id: string;
-        name: string;
-        status: CharacterStatus;
-        specy: Specy;
-        gender: CharacterGender;
-        image: string;
-        created: Date;
-        state: CharacterState;
-      },
-      never
-    >[];
-
     switch (input.type) {
-      case 'specy':
-        characters = await this.prismaService.character.findMany({
+      case 'specy': {
+        const characters = await this.prismaService.character.findMany({
           where: {
             specy: input.value,
           },
           take: input.limit,
           skip: input.limit * input.page - 1,
         });
-        break;
-      case 'status':
-        characters = await this.prismaService.character.findMany({
+        return characters;
+      }
+      case 'status': {
+        const characters = await this.prismaService.character.findMany({
           where: {
             status: input.value,
           },
           take: input.limit,
           skip: input.limit * input.page - 1,
         });
-        break;
-      case 'state':
-        characters = await this.prismaService.character.findMany({
+
+        return characters;
+      }
+      case 'state': {
+        const characters = await this.prismaService.character.findMany({
           where: {
             state: input.value,
           },
           take: input.limit,
           skip: input.limit * input.page - 1,
         });
-
-        break;
-      default:
-        characters = await this.prismaService.character.findMany({
+        return characters;
+      }
+      default: {
+        const characters = await this.prismaService.character.findMany({
           take: 10,
         });
-        break;
+        return characters;
+      }
     }
-    return characters;
   }
 
   async getOne(id: string) {
     try {
-      const character = await this.prismaService.character.findFirst({
+      const character = await this.prismaService.character.findFirstOrThrow({
         where: {
           id,
         },
       });
-
-      if (!character) {
-        throw new NotFoundException();
-      }
 
       return character;
     } catch (error) {
